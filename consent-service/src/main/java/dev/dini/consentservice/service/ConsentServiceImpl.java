@@ -34,8 +34,8 @@ public class ConsentServiceImpl implements ConsentService {
 
         log.info("Saved Consent Status: {}", savedConsent.getStatus());
         TwoFaRequestDTO twoFaRequest = new TwoFaRequestDTO(
-                request.getUserId(),
-                request.getPaymentRequestId(),
+                request.userId(),
+                request.paymentRequestId(),
                 savedConsent.getId()
         );
 

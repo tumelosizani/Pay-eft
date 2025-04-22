@@ -8,7 +8,4 @@ import java.util.UUID;
 
 public interface TransactionService {
     void processCompletedEftPayment(PaymentCompletedEvent event);
-
-    void recordTransaction(PaymentCompletedEvent event);
-    List<Transaction> getTransactionsByCustomer(UUID customerId);
 }

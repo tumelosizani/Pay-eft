@@ -1,18 +1,16 @@
 package dev.dini.transactionservice.service;
 
 import dev.dini.transactionservice.dto.PaymentCompletedEvent;
-import dev.dini.transactionservice.entity.Transaction;
-import dev.dini.transactionservice.entity.TransactionStatus;
-import dev.dini.transactionservice.entity.TransactionType;
+import dev.dini.transactionservice.entity.*;
 import dev.dini.transactionservice.mapper.TransactionMapper;
 import dev.dini.transactionservice.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TransactionServiceImpl implements TransactionService {
@@ -22,6 +20,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public void processCompletedEftPayment(PaymentCompletedEvent event) {
+        log.info("Received Payment Completed Event: {}", event);
         Transaction txn = transactionMapper.toEntity(event);
         txn.setType(TransactionType.EFT);
         txn.setCreatedAt(LocalDateTime.now());
@@ -29,19 +28,9 @@ public class TransactionServiceImpl implements TransactionService {
         txn.setStatus(TransactionStatus.SUCCESS);
         txn.setCompletedAt(LocalDateTime.now());
 
+        log.info("Saving transaction: {}", txn);
         transactionRepository.save(txn);
     }
 
 
-
-    @Override
-    public void recordTransaction(PaymentCompletedEvent event) {
-        Transaction txn = transactionMapper.toEntity(event);
-        transactionRepository.save(txn);
-    }
-
-    @Override
-    public List<Transaction> getTransactionsByCustomer(UUID customerId) {
-        return transactionRepository.findByCustomerId(customerId);
-    }
 }

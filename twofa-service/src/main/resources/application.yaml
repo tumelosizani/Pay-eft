@@ -56,8 +56,3 @@ logging:
   level:
     dev.dini.twofaservice.client.ConsentClient: DEBUG
 
-feign:
-  client:
-    config:
-      default:
-        loggerLevel: FULL

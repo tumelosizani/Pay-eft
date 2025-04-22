@@ -23,12 +23,12 @@ public class PaymentInitiatedConsumer {
     public void consumePaymentInitiatedEvent(PaymentInitiatedEvent event) {
         log.info("Received payment initiated event: {}", event);
 
-        ConsentRequestDTO consentRequestDTO = new ConsentRequestDTO();
-        consentRequestDTO.setUserId(event.customerId());
-        consentRequestDTO.setPaymentRequestId(event.paymentRequestId());
-        consentRequestDTO.setType(ConsentType.PUSH_NOTIFICATION);
-        consentRequestDTO.setStatus(ConsentStatus.PENDING);
-
+        ConsentRequestDTO consentRequestDTO = new ConsentRequestDTO(
+                event.paymentRequestId(),
+                event.customerId(),
+                ConsentType.PUSH_NOTIFICATION,
+                ConsentStatus.PENDING
+        );
 
         // Use the ConsentService to create the Consent entity
         consentService.createConsent(consentRequestDTO);

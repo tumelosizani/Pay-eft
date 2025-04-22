@@ -10,7 +10,7 @@ public record PaymentCompletedEvent(
         UUID paymentRequestId,
         UUID customerId,
         BigDecimal amount,
-        TransactionStatus status, // SUCCESS, FAILED
+        TransactionStatus status,
         LocalDateTime completedAt
 ) {}
 

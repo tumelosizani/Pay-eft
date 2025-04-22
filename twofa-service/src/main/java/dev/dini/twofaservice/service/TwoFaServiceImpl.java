@@ -8,6 +8,7 @@ import dev.dini.twofaservice.exception.TwoFaNotFoundException;
 import dev.dini.twofaservice.mapper.TwoFaMapper;
 import dev.dini.twofaservice.message.TwoFaResultProducer;
 import dev.dini.twofaservice.repository.TwoFaRequestRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,8 +30,8 @@ public class TwoFaServiceImpl implements TwoFaService {
     public TwoFaResponseDTO createTwoFaRequest(TwoFaCreateDTO createRequestDTO) {
         log.info("Create two fa request: {}", createRequestDTO);
         TwoFaRequest request = twoFaMapper.toEntity(createRequestDTO);
-        request.setCustomerId(createRequestDTO.getCustomerId());
-        request.setPaymentRequestId(createRequestDTO.getPaymentRequestId());
+        request.setCustomerId(createRequestDTO.customerId());
+        request.setPaymentRequestId(createRequestDTO.paymentRequestId());
         request.setStatus(TwoFaStatus.PENDING);
         log.info("Sending payment request: {}", request);
 
@@ -40,6 +41,7 @@ public class TwoFaServiceImpl implements TwoFaService {
 
         return twoFaMapper.toResponseDTO(request);
     }
+
 
     public TwoFaResponseDTO handleApproval(UUID twoFaId) {
         TwoFaRequest request = repository.findById(twoFaId)
@@ -55,15 +57,11 @@ public class TwoFaServiceImpl implements TwoFaService {
 
 
         // Send callback to Consent Service using Feign Client
-        TwoFaCallbackDTO callbackDTO = new TwoFaCallbackDTO();
-        callbackDTO.setConsentId(request.getConsentId());
-        callbackDTO.setStatus(TwoFaStatus.APPROVED);
-        consentClient.handle2FaCallback(callbackDTO);
+        sendConsentCallback(request, TwoFaStatus.APPROVED);
         log.info("Sent approval callback to Consent Service for consentId: {}", request.getConsentId());
 
         return twoFaMapper.toResponseDTO(request);
     }
-
 
 
     public TwoFaResponseDTO handleRejection(UUID twoFaId) {
@@ -77,21 +75,30 @@ public class TwoFaServiceImpl implements TwoFaService {
         twoFaResultProducer.publishTwoFaResultEvent(resultEvent);
 
         // Send callback to Consent Service using Feign Client
-        TwoFaCallbackDTO callbackDTO = new TwoFaCallbackDTO();
-        callbackDTO.setConsentId(request.getConsentId());
-        callbackDTO.setStatus(TwoFaStatus.REJECTED);
-        consentClient.handle2FaCallback(callbackDTO);
+        sendConsentCallback(request, TwoFaStatus.REJECTED);
+
         log.info("Sent rejected callback to Consent Service for consentId: {}", request.getConsentId());
 
         return twoFaMapper.toResponseDTO(request);
     }
 
+    private void sendConsentCallback(TwoFaRequest request, TwoFaStatus status) {
+        TwoFaCallbackDTO callbackDTO = new TwoFaCallbackDTO(
+                request.getConsentId(),
+                status
+        );
+        consentClient.handle2FaCallback(callbackDTO);
+        log.info("Sent {} callback to Consent Service for consentId: {}", status, request.getConsentId());
+    }
+
     @Override
+    @Transactional
     public TwoFaResponseDTO approveRequest(UUID twoFaId) {
         return handleApproval(twoFaId);
     }
 
     @Override
+    @Transactional
     public TwoFaResponseDTO rejectRequest(UUID twoFaId) {
         return handleRejection(twoFaId);
     }
