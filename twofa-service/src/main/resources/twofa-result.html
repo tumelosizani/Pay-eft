@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>2FA Result</title>
+</head>
+<body>
+<h1 th:if="${#httpServletRequest.requestURI.contains('/approve')}">Payment Approved!</h1>
+<h1 th:if="${#httpServletRequest.requestURI.contains('/reject')}">Payment Rejected!</h1>
+<p>You can now close this window.</p>
+</body>
+</html>

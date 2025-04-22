@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: consent-service
+
+  # Database Configuration
+  datasource:
+    url: jdbc:postgresql://localhost:6000/consent-service
+  jpa:
+    database: postgresql
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+
+# Kafka Configuration
+  kafka:
+    bootstrap-servers: localhost:9092
+    # Consumer configuration (for payment-initiated topic)
+    consumer:
+      bootstrap-servers: localhost:9092
+      group-id: consent-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: "*"
+            type:
+              mapping: dev.dini.gatewayservice.dto.PaymentInitiatedEvent:dev.dini.consentservice.dto.PaymentInitiatedEvent
+        spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+
+kafka:
+    topic:
+     twofa-initiation: twofa-initiation
+
+services:
+    2fa:
+        url: http://localhost:8082
+
+
+server:
+  port: 8083
+

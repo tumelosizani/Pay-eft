@@ -1,0 +1,63 @@
+spring:
+  application:
+    name: twofa-service
+
+# Database Configuration
+  datasource:
+    url: jdbc:postgresql://localhost:6000/twofa-service
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    database: postgresql
+
+# kafka Configuration
+  kafka:
+    bootstrap-servers: localhost:9092
+
+    # Consumer configuration (for payment-initiated topic)
+    consumer:
+      group-id: twofa-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: "*"
+            type:
+              mapping: dev.dini.gatewayservice.dto.PaymentInitiatedEvent:dev.dini.twofaservice.dto.PaymentInitiatedEvent
+        spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+
+    # Producer configuration (for twofa-approved and twofa-rejected topics)
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+# Define the topic names
+kafka:
+  topic:
+    twofa-approved: twofa-approved
+    twofa-rejected: twofa-rejected
+
+
+server:
+  port: 8082
+
+
+services:
+  consent:
+    url: http://localhost:8083
+
+logging:
+  level:
+    dev.dini.twofaservice.client.ConsentClient: DEBUG
+
+feign:
+  client:
+    config:
+      default:
+        loggerLevel: FULL

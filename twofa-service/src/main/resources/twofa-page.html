@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>2FA Verification</title>
+</head>
+<body>
+<h1>Confirm Payment</h1>
+<p th:text="'Payment Request ID: ' + ${twoFaRequest.paymentRequestId}"></p>
+<p th:text="'Customer ID: ' + ${twoFaRequest.customerId}"></p>
+
+<form th:action="@{/twofa/approve/{id}(id=${twoFaRequest.id})}" method="post">
+    <button type="submit">Approve</button>
+</form>
+
+<form th:action="@{/twofa/reject/{id}(id=${twoFaRequest.id})}" method="post">
+    <button type="submit">Reject</button>
+</form>
+
+</body>
+</html>
