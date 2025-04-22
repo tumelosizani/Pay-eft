@@ -53,4 +53,16 @@ public class ConsentController {
         consentService.updateConsentStatus(consentId, newStatus);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/{consentId}")
+    public ResponseEntity<ConsentResponseDTO> getConsentById(@PathVariable UUID consentId) {
+        ConsentResponseDTO consent = consentService.getConsentById(consentId);
+        return ResponseEntity.ok(consent);
+    }
+
+    @GetMapping("/payment-request/{paymentRequestId}")
+    public ResponseEntity<ConsentResponseDTO> getConsentByPaymentRequestId(@PathVariable UUID paymentRequestId) {
+        ConsentResponseDTO consent = consentService.getConsentByPaymentRequestId(paymentRequestId);
+        return ResponseEntity.ok(consent);
+    }
 }

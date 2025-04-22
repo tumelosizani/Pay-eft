@@ -3,6 +3,7 @@ package dev.dini.gatewayservice.service;
 import dev.dini.gatewayservice.client.*;
 import dev.dini.gatewayservice.dto.*;
 import dev.dini.gatewayservice.entity.*;
+import dev.dini.gatewayservice.exception.*;
 import dev.dini.gatewayservice.mapper.PaymentRequestMapper;
 import dev.dini.gatewayservice.message.*;
 import dev.dini.gatewayservice.repository.PaymentRepository;
@@ -30,34 +31,42 @@ public class PaymentServiceImpl implements PaymentService {
         log.info("Initiating payment for customer with identifier: {}", paymentCreateDTO.identifier());
 
         // 1. Validate customer
-        CustomerDTO customer = customerServiceClient.verifyCustomer(paymentCreateDTO.identifier());
+        try {
+            CustomerDTO customer = customerServiceClient.verifyCustomer(paymentCreateDTO.identifier());
+            log.info("Customer found: {}", customer);
 
-        log.info("Customer found: {}", customer);
+            // 2. Create and save payment request
+            PaymentRequest payment = paymentRequestMapper.toEntity(paymentCreateDTO);
+            payment.setCustomerId(customer.id());
+            payment.setStatus(PaymentStatus.PENDING_2FA);
+            PaymentRequest savedPayment = paymentRepository.save(payment);
 
-        // 2. Create and save payment request
-        PaymentRequest payment = paymentRequestMapper.toEntity(paymentCreateDTO);
-        payment.setCustomerId(customer.id());
-        payment.setStatus(PaymentStatus.PENDING_2FA);
+            // 3. Trigger 2FA - kafka
+            PaymentInitiatedEvent event = new PaymentInitiatedEvent(savedPayment.getId(), customer.id());
+            paymentInitiatedProducer.publishPaymentInitiatedEvent(event);
 
-        PaymentRequest savedPayment = paymentRepository.save(payment);
-
-        // 3. Trigger 2FA - kafka
-        PaymentInitiatedEvent event = new PaymentInitiatedEvent(savedPayment.getId(), customer.id());
-        paymentInitiatedProducer.publishPaymentInitiatedEvent(event);
-
-        return paymentRequestMapper.toResponseDTO(savedPayment);
+            return paymentRequestMapper.toResponseDTO(savedPayment);
+        } catch (CustomerVerificationFailedException e) {
+            log.error("Customer verification failed for identifier {}: {}", paymentCreateDTO.identifier(), e.getMessage());
+            throw new PaymentInitiationException("Failed to verify customer.", e);
+        } catch (Exception e) {
+            log.error("Error initiating payment for customer {}: {}", paymentCreateDTO.identifier(), e.getMessage());
+            throw new PaymentInitiationException("Failed to initiate payment.", e);
+        }
     }
 
     @Override
     public void updatePaymentStatus(UUID paymentRequestId, PaymentStatus status) {
         paymentRepository.findById(paymentRequestId)
                 .ifPresentOrElse(
+                        // 3. Update payment status
                         paymentRequest -> {
+                            // Check if the status is valid
                             paymentRequest.setStatus(status);
                             paymentRepository.save(paymentRequest);
                             log.info("Payment request {} updated to status: {}", paymentRequestId, status);
                         },
-                        () -> log.warn("Payment request with ID {} not found", paymentRequestId)
+                        () -> log.warn("Payment request with ID: {} not found", paymentRequestId)
                 );
     }
 
@@ -65,6 +74,7 @@ public class PaymentServiceImpl implements PaymentService {
     public void completePayment(UUID paymentRequestId) {
         paymentRepository.findById(paymentRequestId)
                 .ifPresentOrElse(
+
                         paymentRequest -> {
                             if (paymentRequest.getStatus() == PaymentStatus.APPROVED) {
                                 paymentRequest.setStatus(PaymentStatus.COMPLETED);
@@ -75,7 +85,8 @@ public class PaymentServiceImpl implements PaymentService {
                                         paymentRequest.getCustomerId(),
                                         paymentRequest.getAmount()
                                 );
-                                paymentCompletedProducer.publishPaymentCompletedEvent(event); // Pass the event object
+                                // 4. Trigger payment completed - kafka
+                                paymentCompletedProducer.publishPaymentCompletedEvent(event);
                                 log.info("Published PaymentCompletedEvent for request: {}", paymentRequestId);
                             } else {
                                 log.warn("Payment request {} cannot be completed as its current status is {}", paymentRequestId, paymentRequest.getStatus());

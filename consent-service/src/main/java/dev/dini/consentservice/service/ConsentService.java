@@ -4,7 +4,6 @@ import dev.dini.consentservice.client.TwoFaCallbackDTO;
 import dev.dini.consentservice.dto.ConsentRequestDTO;
 import dev.dini.consentservice.dto.ConsentResponseDTO;
 import dev.dini.consentservice.dto.ConsentStatusResponseDTO;
-import dev.dini.consentservice.dto.PaymentInitiatedEvent;
 import dev.dini.consentservice.entity.ConsentStatus;
 
 import java.util.UUID;

@@ -8,8 +8,6 @@ import dev.dini.customerservice.entity.Customer;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 
-import java.util.UUID;
-
 @Mapper(componentModel = "spring")
 public interface CustomerMapper {
 
