@@ -1,0 +1,56 @@
+spring:
+  application:
+    name: gateway-service
+
+  # Database configuration
+  datasource:
+    url: jdbc:postgresql://localhost:6000/gateway-service
+
+  jpa:
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  # kafka configuration
+  kafka:
+    bootstrap-servers: localhost:9092
+    # consumer configuration
+    consumer:
+      group-id: gateway-service-twofa-result-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: "*"
+            type:
+              mapping: dev.dini.twofaservice.dto.TwoFaResultEvent:dev.dini.gatewayservice.dto.TwoFaResultEvent
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+
+    # producer configuration
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+
+server:
+  port: 8081
+
+# Eureka configuration
+customer:
+  service:
+    url: http://localhost:8080/customers
+
+
+kafka:
+  topic:
+    twofa-approved: twofa-approved
+    twofa-rejected: twofa-rejected
+    payment-completed: payment-completed-event

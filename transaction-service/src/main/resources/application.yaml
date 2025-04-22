@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: transaction-service
+
+  # Database Configuration
+  datasource:
+    url: jdbc:postgresql://localhost:6000/transaction-service
+  jpa:
+    database: postgresql
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+
+    # Kafka Configuration
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: transaction-service
+      auto-offset-reset: earliest
+      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: "*"
+            type:
+              mapping: dev.dini.gatewayservice.dto.PaymentCompletedEvent:dev.dini.transactionservice.dto.PaymentCompletedEvent
+        spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+
+
+
+server:
+  port: 8084
+
+kafka:
+  topic:
+    payment-completed: payment-completed-event
