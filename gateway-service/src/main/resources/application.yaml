@@ -5,6 +5,8 @@ spring:
   # Database configuration
   datasource:
     url: jdbc:postgresql://localhost:6000/gateway-service
+    username: postgres
+    password: postgres
 
   jpa:
     database: postgresql
