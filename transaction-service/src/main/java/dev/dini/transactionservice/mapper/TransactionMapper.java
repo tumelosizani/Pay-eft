@@ -1,6 +1,6 @@
 package dev.dini.transactionservice.mapper;
 
-import dev.dini.transactionservice.dto.PaymentCompletedEvent;
+import dev.dini.common.events.PaymentCompletedEvent;
 import dev.dini.transactionservice.entity.Transaction;
 import org.mapstruct.Mapper;
 

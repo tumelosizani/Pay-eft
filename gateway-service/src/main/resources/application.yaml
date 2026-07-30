@@ -31,9 +31,7 @@ spring:
         spring:
           json:
             trusted:
-              packages: "*"
-            type:
-              mapping: dev.dini.twofaservice.dto.TwoFaResultEvent:dev.dini.gatewayservice.dto.TwoFaResultEvent
+              packages: "dev.dini.common.events"
         spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
 
     # producer configuration

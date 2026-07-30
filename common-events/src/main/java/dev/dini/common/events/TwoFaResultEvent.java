@@ -1,6 +1,5 @@
-package dev.dini.twofaservice.dto;
+package dev.dini.common.events;
 
-import dev.dini.twofaservice.entity.TwoFaStatus;
 import java.util.UUID;
 
 public record TwoFaResultEvent(
