@@ -5,6 +5,8 @@ spring:
 # Database Configuration
   datasource:
     url: jdbc:postgresql://localhost:6000/twofa-service
+    username: postgres
+    password: postgres
 
   jpa:
     hibernate:
