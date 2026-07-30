@@ -1,6 +1,6 @@
 package dev.dini.gatewayservice.message;
 
-import dev.dini.gatewayservice.dto.PaymentInitiatedEvent;
+import dev.dini.common.events.PaymentInitiatedEvent;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 

@@ -1,7 +1,7 @@
 package dev.dini.consentservice.message;
 
 import dev.dini.consentservice.dto.ConsentRequestDTO;
-import dev.dini.consentservice.dto.PaymentInitiatedEvent;
+import dev.dini.common.events.PaymentInitiatedEvent;
 import dev.dini.consentservice.entity.ConsentStatus;
 import dev.dini.consentservice.entity.ConsentType;
 import dev.dini.consentservice.service.ConsentService; // To use createConsent

@@ -1,6 +1,7 @@
 package dev.dini.twofaservice.message;
 
-import dev.dini.twofaservice.dto.TwoFaResultEvent;
+import dev.dini.common.events.TwoFaResultEvent;
+import dev.dini.common.events.TwoFaStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,10 +22,10 @@ public class TwoFaResultProducer {
     private String twoFaRejectedTopic;
 
     public void publishTwoFaResultEvent(TwoFaResultEvent event) {
-        if (event.status() == dev.dini.twofaservice.entity.TwoFaStatus.APPROVED) {
+        if (event.status() == TwoFaStatus.APPROVED) {
             kafkaTemplate.send(twoFaApprovedTopic, event);
             log.info("Published 2FA Approved event: {}", event);
-        } else if (event.status() == dev.dini.twofaservice.entity.TwoFaStatus.REJECTED) {
+        } else if (event.status() == TwoFaStatus.REJECTED) {
             kafkaTemplate.send(twoFaRejectedTopic, event);
             log.info("Published 2FA Rejected event: {}", event);
         } else {

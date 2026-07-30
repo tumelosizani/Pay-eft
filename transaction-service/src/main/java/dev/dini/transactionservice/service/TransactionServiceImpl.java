@@ -1,6 +1,6 @@
 package dev.dini.transactionservice.service;
 
-import dev.dini.transactionservice.dto.PaymentCompletedEvent;
+import dev.dini.common.events.PaymentCompletedEvent;
 import dev.dini.transactionservice.entity.*;
 import dev.dini.transactionservice.mapper.TransactionMapper;
 import dev.dini.transactionservice.repository.TransactionRepository;

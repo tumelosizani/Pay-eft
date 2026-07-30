@@ -1,5 +1,7 @@
 package dev.dini.gatewayservice.service;
 
+import dev.dini.common.events.PaymentCompletedEvent;
+import dev.dini.common.events.PaymentInitiatedEvent;
 import dev.dini.gatewayservice.client.*;
 import dev.dini.gatewayservice.dto.*;
 import dev.dini.gatewayservice.entity.*;

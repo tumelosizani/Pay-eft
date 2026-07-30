@@ -1,6 +1,6 @@
 package dev.dini.gatewayservice.message;
 
-import dev.dini.gatewayservice.dto.TwoFaResultEvent;
+import dev.dini.common.events.TwoFaResultEvent;
 import dev.dini.gatewayservice.entity.PaymentStatus;
 import dev.dini.gatewayservice.service.PaymentService;
 import lombok.RequiredArgsConstructor;

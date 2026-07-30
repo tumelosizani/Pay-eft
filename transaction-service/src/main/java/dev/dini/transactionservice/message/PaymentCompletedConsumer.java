@@ -1,6 +1,6 @@
 package dev.dini.transactionservice.message;
 
-import dev.dini.transactionservice.dto.PaymentCompletedEvent;
+import dev.dini.common.events.PaymentCompletedEvent;
 import dev.dini.transactionservice.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

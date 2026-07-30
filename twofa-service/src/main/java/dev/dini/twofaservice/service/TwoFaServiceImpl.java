@@ -1,5 +1,6 @@
 package dev.dini.twofaservice.service;
 
+import dev.dini.common.events.TwoFaResultEvent;
 import dev.dini.twofaservice.client.*;
 import dev.dini.twofaservice.dto.*;
 import dev.dini.twofaservice.entity.TwoFaRequest;
@@ -51,7 +52,9 @@ public class TwoFaServiceImpl implements TwoFaService {
 
 
         // Publish the 2FA approved event
-        TwoFaResultEvent resultEvent = new TwoFaResultEvent(request.getPaymentRequestId(), request.getStatus());
+        TwoFaResultEvent resultEvent = new TwoFaResultEvent(
+                request.getPaymentRequestId(),
+                dev.dini.common.events.TwoFaStatus.valueOf(request.getStatus().name()));
         twoFaResultProducer.publishTwoFaResultEvent(resultEvent);
         log.info("2FA request approved event: {}", request);
 
@@ -71,7 +74,9 @@ public class TwoFaServiceImpl implements TwoFaService {
         request.setStatus(TwoFaStatus.REJECTED);
 
         // Publish the 2FA rejected event
-        TwoFaResultEvent resultEvent = new TwoFaResultEvent(request.getPaymentRequestId(), request.getStatus());
+        TwoFaResultEvent resultEvent = new TwoFaResultEvent(
+                request.getPaymentRequestId(),
+                dev.dini.common.events.TwoFaStatus.valueOf(request.getStatus().name()));
         twoFaResultProducer.publishTwoFaResultEvent(resultEvent);
 
         // Send callback to Consent Service using Feign Client
