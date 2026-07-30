@@ -1,2 +1,7 @@
 .idea
 CLAUDE.md
+
+# Gradle build output (build-logic, common-events, and any module)
+build/
+.gradle/
+.kotlin/
